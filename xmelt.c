@@ -1,5 +1,5 @@
 // Copyright (c) 2020 Marco Wang <m.aesophor@gmail.com>
-//#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>  // time
 #include <unistd.h>  // sleep, usleep
@@ -21,7 +21,7 @@ typedef unsigned long pixel_t;  // 0xAARRGGBB
 
 static void
 die(const char *s) {
-//  fprintf(stderr, "xscreenshot: %s\n", s);
+  perror(s);
   exit(EXIT_FAILURE);
 }
 
@@ -44,13 +44,9 @@ rand_between(int lo, int hi)
   return rand() % (hi + 1 - lo) + lo;
 }
 
-
 static void
 pixelcpy(XImage *img, rect_t src, rect_t dest)
 {
-//  printf("[*] moving (%d,%d,%d,%d) -> (%d,%d,%d,%d)\n", src.x, src.y, src.w, src.h, dest.x, dest.y, dest.w, dest.h);
-//  assert((src.w == dest.w) && (src.h == dest.h));
-
   pixel_t *buf = (pixel_t *) malloc(src.w * src.h * sizeof(pixel_t));
 
   for (int y = 0; y < src.h; y++) {
@@ -110,7 +106,7 @@ main(int argc, char *argv[])
 
   dpy = XOpenDisplay(NULL);
   if (!dpy) {
-    die("Can't XOpenDisplay");
+    die("XOpenDisplay failed");
   }
 
   root = RootWindow(dpy, 0);
@@ -118,13 +114,13 @@ main(int argc, char *argv[])
     die("Can't get the root window");
   }
 
-  srand(time(NULL));
-
   XGetWindowAttributes(dpy, root, &attr);
-
   img = XGetImage(dpy, root, 0, 0, attr.width, attr.height, AllPlanes, ZPixmap);
-  if(!img)
+  if (!img) {
     die("Can't XGetImage");
+  }
+
+  srand(time(NULL));
 
   Window window = XCreateSimpleWindow(dpy, root, 0, 0, attr.width, attr.height, 1, 0, 0);
   XSelectInput(dpy, window, ButtonPressMask | ExposureMask);
@@ -140,4 +136,3 @@ main(int argc, char *argv[])
   XCloseDisplay(dpy);
   return EXIT_SUCCESS;
 }
-
