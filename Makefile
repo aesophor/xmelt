@@ -1,10 +1,11 @@
-CXX=g++
-CXXFLAGS=-g -std=c++11 -flto -Os -Wall -pthread
-SRC=$(wildcard src/*.cc)
-BIN=meltdown
+CXX=gcc
+CXXFLAGS=-flto -Os -Wall -lX11
+SRC=$(wildcard *.c)
+BIN=xmelt
 
 all:
 	$(CXX) -o $(BIN) $(SRC) $(CXXFLAGS)
+	strip $(BIN) --strip-unneeded -s -R .comment -R .gnu.version
 
 clean:
 	rm $(BIN)
