@@ -81,12 +81,14 @@ main(int argc, char *argv[]) {
  
   dpy = XOpenDisplay(NULL);
   if (!dpy) {
+    ret = EXIT_FAILURE;
     perror("XOpenDisplay failed");
     goto end;
   }
 
   root = RootWindow(dpy, 0);
   if (!root) {
+    ret = EXIT_FAILURE;
     perror("Can't get the root window");
     goto end;
   }
@@ -94,6 +96,7 @@ main(int argc, char *argv[]) {
   XGetWindowAttributes(dpy, root, &attr);
   img = XGetImage(dpy, root, 0, 0, attr.width, attr.height, AllPlanes, ZPixmap);
   if (!img) {
+    ret = EXIT_FAILURE;
     perror("Can't XGetImage");
     goto end;
   }
