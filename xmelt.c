@@ -9,13 +9,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 
-typedef struct rect_s {
-  int x;
-  int y;
-  int w;
-  int h;
-} rect_t;
-
+typedef struct rect_s { int x, y, w, h; } rect_t;
 typedef unsigned long pixel_t;  // 0xAARRGGBB
 
 
