@@ -26,8 +26,7 @@ die(const char *s) {
 }
 
 static void
-fullscreen_xwindow(Display* dpy, Window window, int width, int height)
-{
+fullscreen_xwindow(Display* dpy, Window window, int width, int height) {
   XSetWindowBorderWidth(dpy, window, 0);
   XMoveResizeWindow(dpy, window, 0, 0, width, height);
 
@@ -39,14 +38,12 @@ fullscreen_xwindow(Display* dpy, Window window, int width, int height)
 }
 
 static int
-rand_between(int lo, int hi)
-{
+rand_between(int lo, int hi) {
   return rand() % (hi + 1 - lo) + lo;
 }
 
 static void
-pixelcpy(XImage *img, rect_t src, rect_t dest)
-{
+pixelcpy(XImage *img, rect_t src, rect_t dest) {
   pixel_t *buf = (pixel_t *) malloc(src.w * src.h * sizeof(pixel_t));
 
   for (int y = 0; y < src.h; y++) {
@@ -77,8 +74,7 @@ pixelcpy(XImage *img, rect_t src, rect_t dest)
 }
 
 static void
-melt(XImage *img)
-{
+melt(XImage *img) {
   rect_t src = {
     .x = rand_between(0, img->width),
     .y = rand_between(0, img->height),
@@ -96,9 +92,9 @@ melt(XImage *img)
   pixelcpy(img, src, dest);
 }
 
+
 int
-main(int argc, char *argv[])
-{
+main(int argc, char *argv[]) {
   XImage *img;
   Display *dpy;
   Window root;
