@@ -102,7 +102,6 @@ main(int argc, char *argv[]) {
   }
 
   window = XCreateSimpleWindow(dpy, root, 0, 0, attr.width, attr.height, 1, 0, 0);
-  XSelectInput(dpy, window, ButtonPressMask | ExposureMask);
   XMapWindow(dpy, window);
 
   // Make our window fullscreen
