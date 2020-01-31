@@ -1,8 +1,7 @@
 // Copyright (c) 2020 Marco Wang <m.aesophor@gmail.com>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>  // time
-#include <unistd.h>  // sleep, usleep
+#include <time.h>
 
 #include <X11/X.h>
 #include <X11/Xlib.h>
