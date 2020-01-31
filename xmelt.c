@@ -13,24 +13,6 @@ typedef struct rect_s { int x, y, w, h; } rect_t;
 typedef unsigned long pixel_t;  // 0xAARRGGBB
 
 
-static void
-die(const char *s) {
-  perror(s);
-  exit(EXIT_FAILURE);
-}
-
-static void
-fullscreen_xwindow(Display* dpy, Window window, int width, int height) {
-  XSetWindowBorderWidth(dpy, window, 0);
-  XMoveResizeWindow(dpy, window, 0, 0, width, height);
-
-  Atom atom_wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
-  Atom atom_wm_state_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
-
-  XChangeProperty(dpy, window, atom_wm_state, XA_ATOM, 32, PropModeReplace,
-                  (unsigned char*) &atom_wm_state_fullscreen, True);
-}
-
 static int
 rand_between(int lo, int hi) {
   return rand() % (hi + 1 - lo) + lo;
@@ -89,40 +71,59 @@ melt(XImage *img) {
 
 int
 main(int argc, char *argv[]) {
-  XImage *img;
-  Display *dpy;
-  Window root;
+  int ret = EXIT_SUCCESS;
+  XImage *img = NULL;
+  Display *dpy = NULL;
+  Window root = None;
+  Window window = None;
+  Atom atom_wm_state = None; 
+  Atom atom_wm_state_fullscreen = None;
   XWindowAttributes attr;
-
+ 
   dpy = XOpenDisplay(NULL);
   if (!dpy) {
-    die("XOpenDisplay failed");
+    perror("XOpenDisplay failed");
+    goto end;
   }
 
   root = RootWindow(dpy, 0);
   if (!root) {
-    die("Can't get the root window");
+    perror("Can't get the root window");
+    goto end;
   }
 
   XGetWindowAttributes(dpy, root, &attr);
   img = XGetImage(dpy, root, 0, 0, attr.width, attr.height, AllPlanes, ZPixmap);
   if (!img) {
-    die("Can't XGetImage");
+    perror("Can't XGetImage");
+    goto end;
   }
 
-  srand(time(NULL));
-
-  Window window = XCreateSimpleWindow(dpy, root, 0, 0, attr.width, attr.height, 1, 0, 0);
+  window = XCreateSimpleWindow(dpy, root, 0, 0, attr.width, attr.height, 1, 0, 0);
   XSelectInput(dpy, window, ButtonPressMask | ExposureMask);
   XMapWindow(dpy, window);
-  fullscreen_xwindow(dpy, window, attr.width, attr.height);
-  
+
+  // Make our window fullscreen
+  atom_wm_state = XInternAtom(dpy, "_NET_WM_STATE", False); 
+  atom_wm_state_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
+  XSetWindowBorderWidth(dpy, window, 0);
+  XMoveResizeWindow(dpy, window, 0, 0, attr.width, attr.height);
+  XChangeProperty(dpy, window, atom_wm_state, XA_ATOM, 32, PropModeReplace,
+                  (unsigned char*) &atom_wm_state_fullscreen, True);
+
+  // Enter melting loop.
+  srand(time(NULL));
   while (1) {
     XPutImage(dpy, window, DefaultGC(dpy, 0), img, 0, 0, 0, 0, attr.width, attr.height);
     melt(img);
   }
 
-  XDestroyImage(img);
-  XCloseDisplay(dpy);
-  return EXIT_SUCCESS;
+end:
+  if (img) {
+    XDestroyImage(img);
+  }
+  if (dpy) {
+    XCloseDisplay(dpy);
+  }
+  return ret;
 }
